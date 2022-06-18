@@ -163,4 +163,36 @@ describe('Hierarchical Data Structure Tree', () => {
 
     expect(node.getValue()).toBe('Borb');
   });
+
+  it('should get sorted nodes', () => {
+    const { addNewNodeToId, getChronologicalOrder, getRootNode } =
+      createHierarchicalTree('1');
+    const rootNodeId = getRootNode().getId();
+    /* Tree Structure
+            1
+         /    \
+        2      6
+       / \    / \
+      3   4  7   8
+           \    / \
+            5  9  10
+    */
+
+    const two = addNewNodeToId(rootNodeId, '2', 'append');
+    addNewNodeToId(two.getId(), '3', 'append');
+    const four = addNewNodeToId(two.getId(), '4', 'append');
+    addNewNodeToId(four.getId(), '5', 'append');
+    const six = addNewNodeToId(rootNodeId, '6', 'append');
+    addNewNodeToId(six.getId(), '7', 'append');
+    const eight = addNewNodeToId(six.getId(), '8', 'append');
+    addNewNodeToId(eight.getId(), '9', 'append');
+    addNewNodeToId(eight.getId(), '10', 'append');
+
+    const nodes = getChronologicalOrder();
+
+    const expected = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+    nodes.forEach((node, index) => {
+      expect(node.getValue()).toBe(expected[index]);
+    });
+  });
 });

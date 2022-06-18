@@ -38,6 +38,8 @@ export type Node<T> = {
 
 export type BreadthFirstSearch<T> = () => Node<T>[];
 
+export type GetChronologicalOrder<T> = () => Node<T>[];
+
 export type Tree<T> = {
   getSize: () => number;
   getTreeId: () => ID;
@@ -45,4 +47,5 @@ export type Tree<T> = {
   addNewNodeToId: AddNewNodeToId<T>;
   findNodeById: FindNodeById<T>;
   breadthFirstSearch: BreadthFirstSearch<T>;
+  getChronologicalOrder: GetChronologicalOrder<T>
 };

@@ -1,7 +1,14 @@
 import { nanoid } from 'nanoid';
 
 import { createNode } from './treeNode';
-import type { TreeOptions, Tree, Node, ID, BreadthFirstSearch } from './types';
+import type {
+  TreeOptions,
+  Tree,
+  Node,
+  ID,
+  BreadthFirstSearch,
+  GetChronologicalOrder,
+} from './types';
 
 export function createHierarchicalTree<T>(
   value: T,
@@ -90,6 +97,27 @@ export function createHierarchicalTree<T>(
     return result;
   };
 
+  const getChronologicalOrder: GetChronologicalOrder<T> = () => {
+    const stack: Node<T>[] = [getRootNode()];
+    const result: Node<T>[] = [];
+
+    while (stack.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const currentNode = stack.shift()!;
+      result.push(currentNode);
+      const children = currentNode.getChildren();
+      const childNodes = [];
+      for (const key in children) {
+        if (Object.hasOwn(children, key)) {
+          childNodes.push(children[key]);
+        }
+      }
+      stack.splice(0, 0, ...childNodes);
+    }
+
+    return result;
+  };
+
   return {
     getSize,
     getTreeId,
@@ -97,5 +125,6 @@ export function createHierarchicalTree<T>(
     addNewNodeToId,
     findNodeById,
     breadthFirstSearch,
+    getChronologicalOrder,
   };
 }
