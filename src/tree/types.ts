@@ -4,12 +4,6 @@ export type TreeOptions = {
 
 export type ID = string | number;
 
-// export type Tree<T> = {
-//   root: Node<T>;
-//   size: number;
-//   id: ID;
-// };
-
 export type NodeChildren<T> = {
   [key: string]: Node<T>;
 };
@@ -36,10 +30,13 @@ export type Node<T> = {
   getChildren: () => NodeChildren<T>;
   getFirstChild: () => Node<T> | null;
   getLastChild: () => Node<T> | null;
+  getSortedChildren: () => Node<T>[];
   append: (child: Node<T>) => Node<T>;
   prepend: (child: Node<T>) => Node<T>;
   insert: (child: Node<T>, before: number) => Node<T>;
 };
+
+export type BreadthFirstSearch<T> = () => Node<T>[];
 
 export type Tree<T> = {
   getSize: () => number;
@@ -47,4 +44,5 @@ export type Tree<T> = {
   getRootNode: () => Node<T>;
   addNewNodeToId: AddNewNodeToId<T>;
   findNodeById: FindNodeById<T>;
+  breadthFirstSearch: BreadthFirstSearch<T>;
 };

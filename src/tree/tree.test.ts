@@ -53,6 +53,26 @@ describe('Hierarchical Data Structure Tree', () => {
     expect(getSize()).toBe(7);
   });
 
+  it('should add new node to another node', () => {
+    const { addNewNodeToId, findNodeById, getRootNode } =
+      createHierarchicalTree('Hello World');
+
+    const rootNodeId = getRootNode().getId();
+
+    addNewNodeToId(rootNodeId, 'Dog', 'append');
+    addNewNodeToId(rootNodeId, 'Cat', 'append');
+    const bunnyNode = addNewNodeToId(rootNodeId, 'Bunny', 'append');
+    addNewNodeToId(bunnyNode.getId(), 'Bird', 'append');
+    addNewNodeToId(bunnyNode.getId(), 'Borb', 'insert', 0);
+
+    const node = findNodeById(bunnyNode.getId())!;
+
+    const kids = node.getSortedChildren();
+
+    expect(kids[0].getValue()).toBe('Borb');
+    expect(kids[1].getValue()).toBe('Bird');
+  });
+
   it('should prepend new nodes', () => {
     const { addNewNodeToId, getSize, findNodeById } = createHierarchicalTree(
       'Hello World',
@@ -102,11 +122,46 @@ describe('Hierarchical Data Structure Tree', () => {
     addNewNodeToId(1, 'Cat', 'append');
     addNewNodeToId(1, 'Bunny', 'append');
     addNewNodeToId(1, 'Bird', 'insert', 0);
+    addNewNodeToId(1, 'Borb', 'insert', 1);
 
     // @ts-expect-error: getFirstChild is not null
     expect(getRootNode().getFirstChild().getValue()).toBe('Bird');
     // @ts-expect-error: getLastChild is not null
     expect(getRootNode().getLastChild().getValue()).toBe('Bunny');
+  });
+
+  it('should breadth first search', () => {
+    const { addNewNodeToId, breadthFirstSearch } = createHierarchicalTree(
+      'Hello World',
+      { createId }
+    );
+
+    addNewNodeToId(1, 'Dog', 'append');
+    addNewNodeToId(1, 'Cat', 'append');
+    addNewNodeToId(1, 'Bunny', 'append');
+    addNewNodeToId(1, 'Bird', 'append');
+    addNewNodeToId(1, 'Borb', 'append');
+
+    const nodes = breadthFirstSearch();
+
+    expect(nodes).toHaveLength(6);
+  });
+
+  it('should find node by id', () => {
+    const { addNewNodeToId, findNodeById, getRootNode } =
+      createHierarchicalTree('Hello World');
+
+    const rootNodeId = getRootNode().getId();
+
+    addNewNodeToId(rootNodeId, 'Dog', 'append');
+    addNewNodeToId(rootNodeId, 'Cat', 'append');
+    const bunnyNode = addNewNodeToId(rootNodeId, 'Bunny', 'append');
+    addNewNodeToId(bunnyNode.getId(), 'Bird', 'insert', 0);
+    const borbNode = addNewNodeToId(bunnyNode.getId(), 'Borb', 'insert', 1);
+
+    const node = findNodeById(borbNode.getId())!;
+
+    expect(node.getValue()).toBe('Borb');
   });
 
   // it("should throw error if position doesn't exist", () => {

@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 
 import { createNode } from './treeNode';
-import type { TreeOptions, Tree, Node, ID } from './types';
+import type { TreeOptions, Tree, Node, ID, BreadthFirstSearch } from './types';
 
 // const updateNodePositions = <T>(Node: Node<T>, appendedNode: Node<T>) => {
 //   if (
@@ -53,10 +53,11 @@ export function createHierarchicalTree<T>(
         size++;
         break;
       case 'insert':
-        if (!before) {
-          throw new Error('Fourth argument "before" is required');
+        if (before === undefined) {
+          throw new Error(`Fourth argument "before" is required`);
         }
         node.insert(appendedNode, before);
+        size++;
         break;
       default:
         throw new Error('Invalid type');
@@ -70,6 +71,7 @@ export function createHierarchicalTree<T>(
     while (queue.length > 0) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const currentNode = queue.shift()!;
+      // console.log({ current: currentNode.getId(), nodeId });
       if (currentNode.getId() === nodeId) {
         result = currentNode;
         break;
@@ -87,9 +89,22 @@ export function createHierarchicalTree<T>(
     return result;
   };
 
-  // const breadthFirstSearch = (): Node<T> => {
-  //   //
-  // };
+  const breadthFirstSearch: BreadthFirstSearch<T> = () => {
+    const queue = [getRootNode()];
+    const result: Node<T>[] = [];
+    while (queue.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const currentNode = queue.shift()!;
+      result.push(currentNode);
+      const children = currentNode.getChildren();
+      for (const key in children) {
+        if (Object.hasOwn(children, key)) {
+          queue.push(children[key]);
+        }
+      }
+    }
+    return result;
+  };
 
   // const appendNewNodeToPosition = (value: T, position: number) => {
   //   let nextPosition = position + 1;
@@ -166,7 +181,6 @@ export function createHierarchicalTree<T>(
   //   throw new Error(`Couldn't find node at position ${position}.`);
   // };
 
-  /*
   // const findNodeById: FindNodeById = (nodeId) => {
   //   const node = tree.root;
 
@@ -188,16 +202,14 @@ export function createHierarchicalTree<T>(
 
   //   return traverse(node);
   // };
-  */
 
   return {
     getSize,
     getTreeId,
     getRootNode,
     addNewNodeToId,
-    // appendNewNodeToPosition,
     findNodeById,
-    // findNodeByPosition,
+    breadthFirstSearch,
   };
 }
 

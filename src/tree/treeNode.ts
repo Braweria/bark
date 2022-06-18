@@ -30,8 +30,24 @@ export const createNode = <T>(
     return child;
   };
 
-  const insert: Node<T>['insert'] = (child: Node<T>) => {
+  const insert: Node<T>['insert'] = (child: Node<T>, before: number) => {
     const keys = getChildKeys();
+
+    const updatedChildren: NodeChildren<T> = keys.reduce(
+      (accumulated: NodeChildren<T>, current) => {
+        if (current >= before.toString()) {
+          accumulated[Number.parseInt(current, 10) + 1] = children[current];
+        } else {
+          accumulated[current] = children[current];
+        }
+        return accumulated;
+      },
+      {}
+    );
+
+    updatedChildren[before] = child;
+
+    children = updatedChildren;
 
     return child;
   };
@@ -42,6 +58,7 @@ export const createNode = <T>(
   const getFirstChild = () => children[0] || null;
   const getLastChild = () =>
     children[Object.keys(children)[Object.keys(children).length - 1]] || null;
+  const getSortedChildren = () => getChildKeys().map((key) => children[key]);
 
   return {
     getValue,
@@ -49,6 +66,7 @@ export const createNode = <T>(
     getChildren,
     getFirstChild,
     getLastChild,
+    getSortedChildren,
     append,
     prepend,
     insert,
