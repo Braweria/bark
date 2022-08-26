@@ -2,11 +2,13 @@ import type { TreeOptions, Node, NodeChildren } from './types';
 
 export const createNode = <T>(
   value: T,
+  parentNode: Node<T> | null,
   createId: NonNullable<TreeOptions['createId']>
 ): Node<T> => {
   const id = createId();
   const nodeValue = value;
   let children: NodeChildren<T> = {};
+  const parent = parentNode;
 
   const getChildKeys = () => Object.keys(children);
 
@@ -52,6 +54,26 @@ export const createNode = <T>(
     return child;
   };
 
+  const deleteChildById: Node<T>['deleteChildById'] = (childId) => {
+    const updatedChildren: NodeChildren<T> = {};
+    let deletedNode;
+
+    for (const key in children) {
+      if (Object.hasOwn(children, key)) {
+        const nodeId = children[key].getId();
+        if (nodeId === childId) {
+          deletedNode = children[key];
+        } else {
+          updatedChildren[key] = children[key];
+        }
+      }
+    }
+
+    children = updatedChildren;
+    return deletedNode as Node<T>;
+  };
+
+  const getParent = () => parent;
   const getValue = () => nodeValue;
   const getId = () => id;
   const getChildren = () => children;
@@ -61,6 +83,7 @@ export const createNode = <T>(
   const getSortedChildren = () => getChildKeys().map((key) => children[key]);
 
   return {
+    getParent,
     getValue,
     getId,
     getChildren,
@@ -70,5 +93,6 @@ export const createNode = <T>(
     append,
     prepend,
     insert,
+    deleteChildById,
   };
 };

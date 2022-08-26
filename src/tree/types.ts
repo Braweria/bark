@@ -25,6 +25,7 @@ export type AddNewNodeToId<T> = {
 };
 
 export type Node<T> = {
+  getParent: () => Node<T> | null;
   getValue: () => T;
   getId: () => ID;
   getChildren: () => NodeChildren<T>;
@@ -34,11 +35,24 @@ export type Node<T> = {
   append: (child: Node<T>) => Node<T>;
   prepend: (child: Node<T>) => Node<T>;
   insert: (child: Node<T>, before: number) => Node<T>;
+  deleteChildById: (childId: ID) => Node<T>;
 };
 
 export type BreadthFirstSearch<T> = () => Node<T>[];
 
 export type GetChronologicalOrder<T> = () => Node<T>[];
+
+export type MoveNodeToId<T> = {
+  (
+    node: ID | Node<T>,
+    targetNodeId: ID,
+    type: 'append' | 'prepend',
+    before?: number
+  ): void;
+  (node: ID | Node<T>, targetNodeId: ID, type: 'insert', before: number): void;
+};
+
+export type DeleteNodeById<T> = (nodeId: ID) => Node<T>;
 
 export type Tree<T> = {
   getSize: () => number;
@@ -47,5 +61,7 @@ export type Tree<T> = {
   addNewNodeToId: AddNewNodeToId<T>;
   findNodeById: FindNodeById<T>;
   breadthFirstSearch: BreadthFirstSearch<T>;
-  getChronologicalOrder: GetChronologicalOrder<T>
+  getChronologicalOrder: GetChronologicalOrder<T>;
+  moveNodeToId: MoveNodeToId<T>;
+  deleteNodeById: DeleteNodeById<T>;
 };

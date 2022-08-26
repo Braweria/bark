@@ -188,11 +188,55 @@ describe('Hierarchical Data Structure Tree', () => {
     addNewNodeToId(eight.getId(), '9', 'append');
     addNewNodeToId(eight.getId(), '10', 'append');
 
-    const nodes = getChronologicalOrder();
+    const nodes = getChronologicalOrder().map((node) => node.getValue());
 
     const expected = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-    nodes.forEach((node, index) => {
-      expect(node.getValue()).toBe(expected[index]);
-    });
+
+    expect(nodes).toStrictEqual(expected);
+  });
+
+  it('should delete node by id', () => {
+    const {
+      addNewNodeToId,
+      getRootNode,
+      deleteNodeById,
+      getChronologicalOrder,
+    } = createHierarchicalTree(1);
+    const rootNodeId = getRootNode().getId();
+
+    const node2 = addNewNodeToId(rootNodeId, 2, 'append');
+    addNewNodeToId(rootNodeId, 5, 'append');
+
+    const before = getChronologicalOrder().map((node) => node.getValue());
+
+    expect(before).toStrictEqual([1, 2, 5]);
+
+    deleteNodeById(node2.getId());
+
+    const after = getChronologicalOrder().map((node) => node.getValue());
+
+    expect(after).not.toStrictEqual(before);
+    expect(after).toStrictEqual([1, 5]);
+  });
+
+  it('should move node to another and update sorting', () => {
+    const { addNewNodeToId, getChronologicalOrder, getRootNode, moveNodeToId } =
+      createHierarchicalTree(1);
+    const rootNodeId = getRootNode().getId();
+
+    const node2 = addNewNodeToId(rootNodeId, 2, 'append');
+    const node3 = addNewNodeToId(rootNodeId, 9, 'append');
+    const node4 = addNewNodeToId(node2.getId(), 12, 'append');
+
+    const nodesBefore = getChronologicalOrder().map((node) => node.getValue());
+
+    expect(nodesBefore).toStrictEqual([1, 2, 12, 9]);
+
+    moveNodeToId(node4.getId(), node3.getId(), 'append');
+
+    const nodesAfter = getChronologicalOrder().map((node) => node.getValue());
+
+    expect(nodesAfter).not.toStrictEqual(nodesBefore);
+    expect(nodesAfter).toStrictEqual([1, 2, 9, 12]);
   });
 });

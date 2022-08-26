@@ -8,6 +8,8 @@ import type {
   ID,
   BreadthFirstSearch,
   GetChronologicalOrder,
+  MoveNodeToId,
+  DeleteNodeById,
 } from './types';
 
 export function createHierarchicalTree<T>(
@@ -19,7 +21,7 @@ export function createHierarchicalTree<T>(
     ...options,
   };
 
-  const root = createNode(value, setupOptions.createId);
+  const root = createNode(value, null, setupOptions.createId);
   const id = setupOptions.createId();
   let size = 1;
 
@@ -34,7 +36,7 @@ export function createHierarchicalTree<T>(
     before
   ) => {
     const node = findNodeById(id);
-    const appendedNode = createNode(value, setupOptions.createId);
+    const appendedNode = createNode(value, node, setupOptions.createId);
     switch (type) {
       case 'append':
         node.append(appendedNode);
@@ -118,6 +120,42 @@ export function createHierarchicalTree<T>(
     return result;
   };
 
+  const deleteNodeById: DeleteNodeById<T> = (nodeId) => {
+    const nodeToDelete = findNodeById(nodeId);
+    const parentNode = nodeToDelete.getParent();
+
+    if (parentNode) {
+      return parentNode.deleteChildById(nodeId);
+    }
+    throw new Error(
+      "No parent found was found, can't delete reference of Node."
+    );
+  };
+
+  const moveNodeToId: MoveNodeToId<T> = (node, targetNodeId, type, before) => {
+    const target = findNodeById(targetNodeId);
+    const nodeToMove = typeof node === 'object' ? node : findNodeById(node);
+
+    deleteNodeById(typeof node === 'object' ? node.getId() : node);
+
+    switch (type) {
+      case 'append':
+        target.append(nodeToMove);
+        break;
+      case 'prepend':
+        target.prepend(nodeToMove);
+        break;
+      case 'insert':
+        if (before === undefined) {
+          throw new Error(`Fourth argument "before" is required`);
+        }
+        target.insert(nodeToMove, before);
+        break;
+      default:
+        throw new Error('Invalid type');
+    }
+  };
+
   return {
     getSize,
     getTreeId,
@@ -126,5 +164,7 @@ export function createHierarchicalTree<T>(
     findNodeById,
     breadthFirstSearch,
     getChronologicalOrder,
+    moveNodeToId,
+    deleteNodeById,
   };
 }
